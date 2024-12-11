@@ -1,0 +1,36 @@
+[
+  {
+    "$lookup": {
+      "from": "comments",
+      "localField": "_id",
+      "foreignField": "movie_id",
+      "as": "comments"
+    }
+  },
+  {
+    "$addFields": {
+      "imdbRating": {
+        "$cond": [
+          { "$eq": [{ "$type": "$imdb.rating" }, "double"] },
+          "$imdb.rating",
+          0
+        ]
+      },
+      "commentCount": { "$size": "$comments" }
+    }
+  },
+  {
+    "$match": { "imdbRating": { "$gt": 0 } }
+  },
+  {
+    "$limit": 5
+  },
+  {
+    "$project": {
+      "_id": 0,
+      "title": 1,
+      "imdbRating": 1,
+      "commentCount": 1
+    }
+  }
+]
